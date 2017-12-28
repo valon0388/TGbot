@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+APIKEY=$1
+
+echo; 
+JSON=$(curl https://api.telegram.org/$APIKEY/getWebhookInfo 2>/dev/null)
+echo "$JSON"
+echo
+echo
+echo "$JSON" | jq '.'

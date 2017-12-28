@@ -1,0 +1,6 @@
+*.pem
+*.key
+*.db
+.directory
+bot.conf
+__pycache__

@@ -5,20 +5,20 @@ It's set up to use the webhook method and not poll for updates with getupdates.
 
 Requirements: # Note that this is a python3 project and all packages will need
                 to be the python3 variants.
-    _thread
-    datetime
-    dateutil
-    http
-    io
-    json
-    os
-    pprint
-    pycurl
-    queue
-    re
-    sqlite3
-    ssl
-    time
+    <br>_thread
+    <br>datetime
+    <br>dateutil
+    <br>http
+    <br>io
+    <br>json
+    <br>os
+    <br>pprint
+    <br>pycurl
+    <br>queue
+    <br>re
+    <br>sqlite3
+    <br>ssl
+    <br>time
 
 
 Currently Working Features:
@@ -47,49 +47,53 @@ Planned Features:
 NOTE: The below config is specifially to explain each setting. Do not attempt to
 Copy and paste this section into a config file. Run the application and a sample
 config will be generated.
+
+
 =============================  SAMPLE BOT CONFIG  =============================
-[server]
-ip = 1.2.3.4   # The IP that the server will be listening on
-port = 443    #       ^ and port
-key = YOUR_Private.key  # Private Key that will be used to decrypt incoming messages
-cert = YOUR_Public.pem  # Public Key that the Telegram server will encrypt messages with
-live = True  # Turn this to False for testing. Disables posts going to the chat.
-db = messageQueue.db  # Name of the local database to store the messages in.
 
-[telegram]
-chat_id = -100000000  # Telegram chat ID
-token = 987654321:ABCDEFGHIJKLMNOPQRSTUVWXYZ  # Telegram API token
-botname = @Botty_the_bot  # Name of the bot in the chat.
-# time_limit is currently set to 23 hours
-time_limit = 82800  # Amount of time for messages to stay in chat.
-botsay = True  # Set to False to disable posting messages to chat.
-botwelcome = True  # Set to False to disable posting welcome messages
-url = https://api.telegram.org/bot{}/  # DO NOT CHANGE: telegram api url
 
-[group_info]
-name = MY_GROUP  # Name of the group and/or chat
-rules_link = https://mygroup.com/group/link/to/rules  # Link to a website with the rules
-upcoming = https://mygroup.com/group/link/to/upcoming/events/post  # Link to an events post
+<br>[server]
+<br>ip = 1.2.3.4   # The IP that the server will be listening on
+<br>port = 443    #       ^ and port
+<br>key = YOUR_Private.key  # Private Key that will be used to decrypt incoming messages
+<br>cert = YOUR_Public.pem  # Public Key that the Telegram server will encrypt messages with
+<br>live = True  # Turn this to False for testing. Disables posts going to the chat.
+<br>db = messageQueue.db  # Name of the local database to store the messages in.
 
-[calendar]
-app_name = Bot Calendar Access  # Google App Name (I don't believe that this is actually used anymore)
-cal_id = A0B1C2D3E4F5G6H7I8J9K0@group.calendar.google.com  # Link to the publicly available calendar
-api_key = Z00Y11X22W33V44U55T66S77R88Q99  # Google API token used to access the calendar
+<br>[telegram]
+<br>chat_id = -100000000  # Telegram chat ID
+<br>token = 987654321:ABCDEFGHIJKLMNOPQRSTUVWXYZ  # Telegram API token
+<br>botname = @Botty_the_bot  # Name of the bot in the chat.
+<br># time_limit is currently set to 23 hours
+<br>time_limit = 82800  # Amount of time for messages to stay in chat.
+<br>botsay = True  # Set to False to disable posting messages to chat.
+<br>botwelcome = True  # Set to False to disable posting welcome messages
+<br>url = https://api.telegram.org/bot{}/  # DO NOT CHANGE: telegram api url
 
-[events]
-list = True  # List the upcoming events every day or when someone requests an eventlist
-reminders = True  # Post reminders about individual events that are coming up soon.
+<br>[group_info]
+<br>name = MY_GROUP  # Name of the group and/or chat
+<br>rules_link = https://mygroup.com/group/link/to/rules  # Link to a website with the rules
+<br>upcoming = https://mygroup.com/group/link/to/upcoming/events/post  # Link to an events post
 
-[triggers] # each trigger should start with 'trigger_' followed by the trigger's name
-on = True  # Respond to triggers or not
-trigger_name = (BOT|@BOT|bot|@bot)    # Trigger for the bot's name. Manually set the regex here
-trigger_hey = Hey {}        # Randomly defined trigger
-trigger_poke = .*[pP]oke.* {}  # Randomly defined trigger
+<br>[calendar]
+<br>app_name = Bot Calendar Access  # Google App Name (I don't believe that this is actually used anymore)
+<br>cal_id = A0B1C2D3E4F5G6H7I8J9K0@group.calendar.google.com  # Link to the publicly available calendar
+<br>api_key = Z00Y11X22W33V44U55T66S77R88Q99  # Google API token used to access the calendar
 
-[responses]  # Responses for the items defined in the 'trigger' section
-name_one = You rang?  # First response for the 'name' trigger
-name_two = What was that?  # Second response for the 'name' trigger
-welcome = Welcome to the {} chat, {}!  # Welcome message.
+<br>[events]
+<br>list = True  # List the upcoming events every day or when someone requests an eventlist
+<br>reminders = True  # Post reminders about individual events that are coming up soon.
+
+<br>[triggers] # each trigger should start with 'trigger_' followed by the trigger's name
+<br>on = True  # Respond to triggers or not
+<br>trigger_name = (BOT|@BOT|bot|@bot)    # Trigger for the bot's name. Manually set the regex here
+<br>trigger_hey = Hey {}        # Randomly defined trigger
+<br>trigger_poke = .*[pP]oke.* {}  # Randomly defined trigger
+
+<br>[responses]  # Responses for the items defined in the 'trigger' section
+<br>name_one = You rang?  # First response for the 'name' trigger
+<br>name_two = What was that?  # Second response for the 'name' trigger
+<br>welcome = Welcome to the {} chat, {}!  # Welcome message.
 
     Take a moment and read our rules before getting started. You can find them at {}.
 

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+IP=$1
+PORT=$2
+TOKEN=$3
+
+IPPORT="https://$IP:$PORT/$TOKEN"
+
+while true; do
+    printf "botsay> "
+    read TEXT
+
+    curl -v -k -X POST \
+    -H "Content-Type: application/json" \
+    -H "Cache-Control:s no-cache" \
+    -d '{"botsay": "'"${TEXT}"'"}' $IPPORT
+done;
+
+# Usage:
+#   ./botsay IP PORT "TELEGRAM API KEY"
+#   ./botsay 1.2.3.4 443 "987654321:ABCDEFGHIJKLMNOPQRSTUVWXYZ"

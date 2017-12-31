@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+DATE=$1
+
+TEXT=$2
+
+for FILE in $(ls ../*botlogs/ | grep "$DATE"); do
+    echo;
+    echo "============${FILE}============";
+    zcat $FILE | grep -i "$TEXT";
+done;
+
+# Usage: From Utils Directory
+#   ./searchBotLog "2017-12-30" "anniversary"

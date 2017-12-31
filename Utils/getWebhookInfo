@@ -2,9 +2,12 @@
 
 APIKEY=$1
 
-echo; 
+echo;
 JSON=$(curl https://api.telegram.org/$APIKEY/getWebhookInfo 2>/dev/null)
 echo "$JSON"
 echo
 echo
 echo "$JSON" | jq '.'
+
+# Usage:
+#   ./getWebhookInfo A1B2C3D:4E5F6G7H8I9J0KL

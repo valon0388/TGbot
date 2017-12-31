@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+IP=$1
+PORT=$2
+APIKEY=$3
+PUBLIC_KEY=$4
+PRIVATE_KEY=$5
+
+ST=$6
+L=$7
+O=$8
+
+openssl req -newkey rsa:2048 -sha256 -nodes -keyout $PRIVATE_KEY -x509 -days 365 -out $PUBLIC_KEY -subj "/C=US/ST=$ST/L=$L/O=$O/CN=$IP"
+
+curl -F "url=https://$IP:$PORT/$APIKEY" -F "certificate=@$PUBLIC_KEY" https://api.telegram.org/bot$APIKEY/setWebhook
+
+
+
+
+# Usage:
+#  ./setWebhook 1.2.3.4 443 A1B2C3D:4E5F6G7H8I9J0KL ./YOUR_PUBLIC.pem ./YOUR_PRIVATE.key STATE(TX) LOCALITY(San Antonio) OFFICE(COMPANY NAME)
+#  Note: CN is automatically set to the IP in this case, as I'm assuming that
+#  the user won't bother setting up a domain.

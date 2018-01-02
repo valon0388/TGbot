@@ -76,7 +76,7 @@ class botRequestHandler(BaseHTTPRequestHandler):
         post_data = json.loads(post_data.decode('utf-8'))
         response = self.processor.process_now(post_data)
         if response is 'eventlist':
-            response = CAL.check()
+            response = self.CAL.check()
         if response is not None:
             self.log(DEBUG, "RESPONSE: {}".format(response))
             if self.processor.process_later(response):
@@ -131,15 +131,21 @@ class botRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         self.log(DEBUG, "botRequestHandler --> do_POST")
         try:
-            content_length = int(self.headers['Content-Length'])  # <--- Gets the size of data
-            self.log(DEBUG, "PATH: {} \n TOKEN:{}".format(self.path[1:], self.config.telegram["TOKEN"]))
+            content_length = int(self.headers['Content-Length'])  # gets size
+            self.log(DEBUG,
+                     "PATH: {} \n TOKEN:{}".format(
+                        self.path[1:],
+                        self.config.telegram["TOKEN"]
+                        ))
             if self.path[1:] == self.config.telegram["TOKEN"]:
-                post_data = self.rfile.read(content_length)  # <--- Gets the data itself
+                post_data = self.rfile.read(content_length)  # gets data
                 _thread.start_new_thread(self.process_post_data, (post_data,))
                 self.set_success_headers()
                 self.wfile.write(b"<html><body><h1>POST!</h1></body></html>\n")
             else:
                 self.set_forbidden_headers()
-                self.wfile.write(b"<html><body><h1>403 FORBIDDEN</h1></body></html>")
+                self.wfile.write(
+                    b"<html><body><h1>403 FORBIDDEN</h1></body></html>"
+                    )
         except Exception as e:
             self.log(ERROR, "Exception: {}".format(e))

@@ -16,7 +16,8 @@
 # along with TGBOT.  If not, see <http://www.gnu.org/licenses/>.
 
 # local imports
-from logger import *  # Imports Logger class as well as predefined Logging levels(INFO, DEBUG, ERROR)
+# Imports Logger class as well as predefined Logging levels(INFO, DEBUG, ERROR)
+from logger import *
 from TGInterface import TGInterface
 from config import Config
 
@@ -30,7 +31,6 @@ import pycurl
 from io import BytesIO
 
 # URL=https://www.googleapis.com/calendar/v3/calendars/{cal_id}/events?key={api_key}
-
 
 
 # ###################################
@@ -47,14 +47,15 @@ from io import BytesIO
 def singleton(cls):
     instances = {}
 
-    def __init__(api_key=False, calID=False):
+    def __init__():
         return
 
-    def getinstance(api_key=False, calID=False):
+    def getinstance():
         if cls not in instances:
-            instances[cls] = cls(api_key, calID)
+            instances[cls] = cls()
         return instances[cls]
     return getinstance
+
 
 # ###################################
 #  BotCalendar
@@ -78,10 +79,10 @@ class BotCalendar:
     #  Grabs the api key and calendar id
     #  to initialize the class.
     # ###################################s
-    def __init__(self, api_key=False, calID=False):
+    def __init__(self):
         self.log(DEBUG, " func --> __init__")
-        self.API_KEY = api_key
-        self.CALID = calID
+        self.API_KEY = self.config.calendar['API_KEY']
+        self.CALID = self.config.calendar['CALID']
 
     # ###################################
     #  Log
@@ -213,7 +214,7 @@ class BotCalendar:
                 break
         if "UPCOMING" in self.config.group_info:
             event_string = event_string + '\n\nUpcoming Events: {}'.format(self.config.group_info["UPCOMING"])
-        return event_strings
+        return event_string
 
     # ###################################
     #  get_urgentEvents

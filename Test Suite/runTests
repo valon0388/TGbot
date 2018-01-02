@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+DIR="Test Suite"
+
+echoHeader()
+{
+    echo
+    echo
+    echo "================================== $1 =================================="
+}
+
+
+cd ..
+
+echoHeader "BotCalendar"
+"$DIR"/botcalendar-test.py
+
+# echoHeader "BotCalendar"
+# "$DIR"/botcalendar-test.py
+
+cd "$DIR"

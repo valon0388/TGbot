@@ -68,7 +68,6 @@ class Config:
     triggers = {}
     responses = {}
 
-
     # ###################################
     #  __init__
     # ###################################
@@ -119,7 +118,8 @@ class Config:
             section = 'group_info'
             self.group_info["GROUPNAME"] = self.config[section]['name']
             self.group_info["RULES"] = self.config[section]['rules_link']
-            self.group_info["UPCOMING"] = "https://api.telegram.org/bot{}/".format(self.telegram['TOKEN'])
+            self.group_info["UPCOMING"] = self.config[section]['upcoming']
+
 
             section = 'calendar'
             self.calendar["APP_NAME"] = self.config[section]['app_name']
@@ -175,7 +175,8 @@ class Config:
                 'token': '987654321:ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                 'time_limit': '82800',
                 'botsay': True,
-                'botwelcome': True
+                'botwelcome': True,
+                'url': 'https://api.telegram.org/bot{}/'
             }
 
             self.config['group_info'] = {

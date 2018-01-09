@@ -10,7 +10,7 @@ gzo()
     gzip -9 -c $FILE > $NEW && echo '' > $FILE;
 }
 
-gzo /home/$BOTNAME/$BOTNAMElog;
+gzo /home/${BOTNAME}/${BOTNAME}log;
 
 # Usage:
 #   ./compressLog "tgbot"

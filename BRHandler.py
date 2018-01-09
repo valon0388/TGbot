@@ -49,7 +49,6 @@ class botRequestHandler(BaseHTTPRequestHandler):
     CAL = BotCalendar()
     MQ = MessageQueue()
 
-
     # ##################################
     #  Log
     #

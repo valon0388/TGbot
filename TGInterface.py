@@ -140,19 +140,22 @@ class TGInterface:
     def deleteFromChat(self, message_id, chat_id, recurse=0):
         self.log(DEBUG, "func --> deleteFromChat")
         if recurse >= 5:
+            self.log(ERROR, "Failed to delete message {} from chat!! Message_json to follow".format(message_id))
+            self.log(ERROR, message_id)
             return False
+
         self.log(INFO, "Attempting to delete message: {} from chat: {}".format(message_id, chat_id))
-        url = self.config.telegram["URL"] + "deleteMessage?message_id={}&chat_id={}".format(message_id, chat_id)
+        url = self.config.telegram["URL"].format(self.config.telegram["TOKEN"]) + "deleteMessage?message_id={}&chat_id={}".format(message_id, chat_id)
         if self.config.server["LIVE"]:
             result = self.get_url(url)
             self.log(DEBUG, "Return from Delete: {}".format(result))
-
-            if "ok" in result:
+            result = json.loads(result)
+            if "ok" in result and result["ok"]:
                 self.log(INFO, "Message deleted.")
                 return True
             else:
                 self.log(ERROR, "Message not deleted...trying again in 5 seconds")
-                time.sleep(5)
+                #time.sleep(5)
                 return self.deleteFromChat(message_id, chat_id, recurse + 1)
         else:
             self.log(DEBUG, "TESTING DELETE")

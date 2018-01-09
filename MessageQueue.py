@@ -17,7 +17,7 @@
 
 # Local Imports
 # Imports Logger class as well as predefined Logging levels(INFO, DEBUG, ERROR)
-from logger import *  
+from logger import *
 from DBHandler import DBHandler
 from config import Config
 from TGInterface import TGInterface
@@ -157,13 +157,9 @@ class MessageQueue:
         message_id = message_json[mType]["message_id"]
         chat_id = message_json[mType]["chat"]["id"]
 
-        if self.TGI.deleteFromChat(message_id, chat_id):
-            self.log(INFO, "MESSAGE DELETED")
-            self.messageQueue.get()
-            self.DB.removeFromDB(message_id)
-        else:
-            self.log(ERROR, "Failed to delete message {} from chat!! Message_json to follow".format(ID))
-            self.log(ERROR, message_json)
+        self.TGI.deleteFromChat(message_id, chat_id)
+        self.messageQueue.get()
+        self.DB.removeFromDB(message_id)
 
     # ###################################
     #  message_peek

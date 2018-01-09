@@ -70,6 +70,7 @@ class BotCalendar:
     logger = Logger()
     config = Config()
     eventQueue = queue.Queue()
+    TGI = TGInterface()
 
     URL = 'https://www.googleapis.com/calendar/v3/calendars/{}/events?key={}&timeMin={}&maxResults=3&showDeleted=false&orderBy=startTime&singleEvents=true'
 

@@ -71,7 +71,7 @@ def __init__():
     global TGI
     config = Config()
     TGI = TGInterface()
-    CAL = BotCalendar(config.calendar["API_KEY"], config.calendar["CALID"])
+    CAL = BotCalendar()
     MQ = MessageQueue()
     MQ.loadDB()
     log(INFO, "Attempting to bind to IP: {} and port: {}".format(config.server["IP"], int(config.server["PORT"])))
@@ -119,7 +119,7 @@ __init__()
 _thread.start_new_thread(push_listener, (("push_listener", 0)))
 _thread.start_new_thread(calendar_checker, (("calendar_checker", 0)))
 
-TGI.bot_say("I HAVE THE POOOOOWEEEERRR!!!")
+TGI.bot_say("FEAR THE EVENTUAL EVISCERATOR!!!")
 CAL.build_eventQueue()
 
 log(INFO, "AFTER PUSH LISTENER")

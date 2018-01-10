@@ -64,10 +64,10 @@ def singleton(cls):
 @singleton
 class MessageQueue:
     logger = Logger()
-    messageQueue = Queue()
     DB = DBHandler()
     config = Config()
     TGI = TGInterface()
+    messageQueue = Queue()
 
     # ###################################
     #  Log

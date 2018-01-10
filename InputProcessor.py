@@ -20,7 +20,10 @@
 from logger import *
 from TGInterface import TGInterface
 from config import Config
+from botcalendar import BotCalendar
+from MessageQueue import MessageQueue
 
+import json
 import re
 import random
 
@@ -37,6 +40,8 @@ class InputProcessor:
     logger = Logger()
     TGI = TGInterface()
     config = Config()
+    CAL = BotCalendar()
+    MQ = MessageQueue()
 
     # ###################################
     #  Log
@@ -81,6 +86,29 @@ class InputProcessor:
             mType = "other"
         return mType
 
+    # ################################################
+    #  process_post_data
+    #
+    #  Takes the post_data for an incoming
+    #  message and sends it to process_now
+    #  to check if it needs to be processed now.
+    #  The return response or message from Telegram is
+    #  added to the queue to be processed_later. Following
+    #  that the original message is run through the later
+    #  processor to be logged.
+    # ################################################
+    def process_post_data(self, post_data):
+        self.log(DEBUG, post_data)
+        post_data = json.loads(post_data.decode('utf-8'))
+        response = self.process_now(post_data)
+
+        if response is not None:
+            self.log(DEBUG, "RESPONSE: {}".format(response))
+            if self.process_later(response):
+                self.MQ.addMessage(response)
+        if self.process_later(post_data):
+            self.MQ.addMessage(post_data)
+
     # ###################################
     #  process_later
     #
@@ -98,6 +126,33 @@ class InputProcessor:
             return False
 
     # ###################################
+    #  process_triggers
+    #
+    #  Checks the provided text agains the
+    #  list of triggers that have been
+    #  provided in the config and triggers
+    #  a response.
+    # ###################################
+    def process_triggers(self, text):
+        self.log(DEBUG, "func --> process_triggers")
+        for key, value in self.config.triggers["TRIGGERS"].items():
+            try:
+                value = value.format(self.config.telegram["BOTNAME"])
+            except IndexError:
+                self.log(ERROR, "No need to fill in the botname. This trigger doesn't take a name.")
+
+            re_value = re.compile(value)
+            if re_value.search(text) is not None:
+                self.log(DEBUG, "Match for [{}] in text [{}]".format(value, text))
+                if re_value.search(text) is not None:
+                  self.CAL.check()
+                else:
+                  self.TGI.bot_say(random.choice(self.config.RESPONSES[key]))
+                break
+            else:
+                self.log(DEBUG, "No Match for [{}] in text [{}]".format(value, text))
+
+    # ###################################
     #  process_now
     #
     #  Determines if a message needs to be
@@ -108,8 +163,7 @@ class InputProcessor:
     # ###################################
     def process_now(self, message):
         self.log(DEBUG, "func --> process_now")
-        # TODO: Add Welcome,
-        # TODO: Add config settings for Welcome, botsay, etc.
+
         mType = self.getMType(message)
         response = None
         self.log(DEBUG, "Message: {}".format(message))
@@ -125,17 +179,7 @@ class InputProcessor:
                 if re.compile('eventlist').search(text) is not None:
                     self.log(DEBUG, "eventlist match")
                     response = "eventlist"
-            for key, value in self.config.triggers["TRIGGERS"].items():
-                try:
-                    value = value.format(self.config.telegram["BOTNAME"])
-                except IndexError:
-                    self.log(ERROR, "No need to fill in the text, it doesn't take a name.")
-                if re.compile(value).search(text) is not None:
-                    self.log(DEBUG, "Match for [{}] in text [{}]".format(value, text))
-                    self.TGI.bot_say(random.choice(self.config.RESPONSES[key]))
-                    break;
-                else:
-                    self.log(DEBUG, "No Match for [{}] in text [{}]".format(value, text))
+            self.process_triggers(text)
 
 
         self.log(DEBUG, "response: {}".format(response))

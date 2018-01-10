@@ -1,6 +1,11 @@
-*.pem
-*.key
-*.db
-.directory
+bot.conf
+bot
+bory
 bot.conf
 __pycache__
+bot.conf
+*.db
+*.key
+*.pem
+.directory
+*botlog

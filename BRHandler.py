@@ -22,16 +22,11 @@
 # Imports Logger class as well as predefined Logging levels(INFO, DEBUG, ERROR)
 from logger import *
 from config import Config
-from MessageQueue import MessageQueue
 from InputProcessor import InputProcessor
-from botcalendar import BotCalendar
-from TGInterface import TGInterface
 
 from http.server import HTTPServer
 from http.server import BaseHTTPRequestHandler
 import ssl
-import json
-import time
 import _thread
 
 
@@ -45,9 +40,6 @@ class botRequestHandler(BaseHTTPRequestHandler):
     logger = Logger()
     processor = InputProcessor()
     config = Config()
-    TGI = TGInterface()
-    CAL = BotCalendar()
-    MQ = MessageQueue()
 
     # ##################################
     #  Log
@@ -58,30 +50,6 @@ class botRequestHandler(BaseHTTPRequestHandler):
     # ###################################
     def log(self, level, statement):
         self.logger.log(level, "botRequestHandler -- {}".format(statement))
-
-    # ################################################
-    #  process_post_data
-    #
-    #  Takes the post_data for an incoming
-    #  message and sends it to the processor
-    #  to check if it needs to be processed now.
-    #  If process_now returns 'eventlist' a
-    #  calendar check is triggered. Otherwise
-    #  the return response or message from Telegram is
-    #  added to the queue to be processed_later.
-    # ################################################
-    def process_post_data(self, post_data):
-        self.log(DEBUG, post_data)
-        post_data = json.loads(post_data.decode('utf-8'))
-        response = self.processor.process_now(post_data)
-        if response is 'eventlist':
-            response = self.CAL.check()
-        if response is not None:
-            self.log(DEBUG, "RESPONSE: {}".format(response))
-            if self.processor.process_later(response):
-                self.MQ.addMessage(response)
-        if self.processor.process_later(post_data):
-            self.MQ.addMessage(post_data)
 
     # ###################################
     #  set_success_headers
@@ -138,7 +106,7 @@ class botRequestHandler(BaseHTTPRequestHandler):
                         ))
             if self.path[1:] == self.config.telegram["TOKEN"]:
                 post_data = self.rfile.read(content_length)  # gets data
-                _thread.start_new_thread(self.process_post_data, (post_data,))
+                _thread.start_new_thread(self.processor.process_post_data, (post_data,))
                 self.set_success_headers()
                 self.wfile.write(b"<html><body><h1>POST!</h1></body></html>\n")
             else:

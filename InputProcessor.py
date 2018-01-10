@@ -144,7 +144,7 @@ class InputProcessor:
             re_value = re.compile(value)
             if re_value.search(text) is not None:
                 self.log(DEBUG, "Match for [{}] in text [{}]".format(value, text))
-                if re_value.search(text) is not None:
+                if re.compile(self.config.RESPONSES['events'][0]).search(text) is not None:
                   self.CAL.check()
                 else:
                   self.TGI.bot_say(random.choice(self.config.RESPONSES[key]))

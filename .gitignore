@@ -1,4 +1,5 @@
-# The actual config file with sensitive information
+!.gitignore
+.*
 bot.conf
 *.key
 *.pem

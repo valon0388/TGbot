@@ -122,16 +122,17 @@ class MessageQueue:
         return mType
 
     # ###################################
-    #  addMessage
+    #  addBotMessage
     #
-    #  Adds the message specified in
-    #  message_json to the DB and to the
-    #  queue.
+    #  Sends the message to chat and 
+    #  adds the return message specified
+    #  to the DB and to the queue.
     # ###################################
-    def addMessage(self, message_json):
+    def addBotMessage(self, message):
         self.log(DEBUG, "func --> addMessage")
-        self.DB.addToDB(self.getMType(message_json), message_json)
-        self.addToQueue(message_json)
+        return_json = self.TGI.bot_say(message)
+        self.addToQueue(return_json)
+        self.DB.addToDB(self.getMType(return_json), return_json)
 
     # ###################################
     #  addToQueue

@@ -1,11 +1,12 @@
+# The actual config file with sensitive information
 bot.conf
-bot
-bory
-bot.conf
-__pycache__
-bot.conf
-*.db
 *.key
 *.pem
+*botlogs/*
+*botlogs
+messageQueue.db
 .directory
+old
+old/*
 *botlog
+bin/__pycache__

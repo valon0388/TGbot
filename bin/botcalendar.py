@@ -102,10 +102,16 @@ class BotCalendar:
     #  them into a queue for use later.
     # ###################################
     def build_eventQueue(self):
+        self.clear_eventQueue()
         events = self.get_events()
         for event in events:
             self.add_to_eventQueue(event)
         return events
+
+    def clear_eventQueue(self):
+        i = 0
+        while i < self.eventQueue.qsize():
+            self.eventQueue.get()
 
     # ###################################
     #  add_to_eventQueue
@@ -234,35 +240,38 @@ class BotCalendar:
     def get_urgentEvents(self):
         self.log(DEBUG, " func --> get_urgentEvents")
         if self.eventQueue.qsize() > 0:
-            event = self.eventQueue.queue[0]
-            now = datetime.today()
-            currentMinute = now.replace(second=0, microsecond=0, tzinfo=timezone(timedelta(hours=-6)))
-            self.log(DEBUG, "EVENT: {}".format(event))
-            start = dateutil.parser.parse(event['start'].get('dateTime', event['start'].get('date')))
-            startMinute = start.replace(second=0, microsecond=0)
-            event_string = ''
-            if startMinute < currentMinute:
-                oldEV = self.eventQueue.get()
-                self.log(DEBUG, "REVOVING OLD EVENT FROM EVENT QUEUE: {}".format(oldEV))
-                self.get_urgentEvents()
-            else:
-                for time in 0, 1, 3, 6, 12, 24, 48, 72:
-                    self.log(DEBUG, "startMinute: {}".format(startMinute))
-                    self.log(DEBUG, "currentMinute: {}".format(currentMinute))
-                    self.log(DEBUG, "timedelta: {}".format(timedelta(hours=time)))
-                    self.log(DEBUG, "+: {}".format(currentMinute + timedelta(hours=time)))
-                    if startMinute == currentMinute + timedelta(hours=time):
-                        if time is 0:
-                            event_string = "Event: {} Starts now!!!\n\n{}".format(event['summary'])
-                            self.eventQueue.get()
-                        else:
-                            if time is 1:
-                                hour = 'hour'
+            i = 0
+            while i < self.eventQueue.qsize():
+                event = self.eventQueue.queue[i]
+                now = datetime.today()
+                currentMinute = now.replace(second=0, microsecond=0, tzinfo=timezone(timedelta(hours=-5)))
+                self.log(DEBUG, "EVENT: {}".format(event))
+                start = dateutil.parser.parse(event['start'].get('dateTime', event['start'].get('date')))
+                startMinute = start.replace(second=0, microsecond=0)
+                event_string = ''
+                if startMinute < currentMinute:
+                    oldEV = self.eventQueue.get()
+                    self.log(DEBUG, "REVOVING OLD EVENT FROM EVENT QUEUE: {}".format(oldEV))
+                    self.get_urgentEvents()
+                else:
+                    for time in 0, 1, 3, 6, 12, 24, 48, 72:
+                        self.log(DEBUG, "startMinute: {}".format(startMinute))
+                        self.log(DEBUG, "currentMinute: {}".format(currentMinute))
+                        self.log(DEBUG, "timedelta: {}".format(timedelta(hours=time)))
+                        self.log(DEBUG, "+: {}".format(currentMinute + timedelta(hours=time)))
+                        if startMinute == currentMinute + timedelta(hours=time):
+                            if time is 0:
+                                event_string = "Event: {} Starts now!!!\n\n".format(event['summary'])
+                                self.eventQueue.get()
                             else:
-                                hour = 'hours'
-                            event_string = "Event: {} Starts in {} {} at {}!!!".format(event['summary'], time, hour, start.strftime("%a %D @ %I:%M%p"))
-                        if 'description' in event:
-                            event_string = event_string + "\nDescription: {}".format(event['description'])
-                        break
-                if event_string is not '' and eval(self.config.events["REMINDERS"]):
-                    self.TGI.bot_say(event_string)
+                                if time is 1:
+                                    hour = 'hour'
+                                else:
+                                    hour = 'hours'
+                                event_string = "Event: {} Starts in {} {} at {}!!!".format(event['summary'], time, hour, start.strftime("%a %D @ %I:%M%p"))
+                            if 'description' in event:
+                                event_string = event_string + "\nDescription: {}".format(event['description'])
+                            break
+                    if event_string is not '' and eval(self.config.events["REMINDERS"]):
+                        self.TGI.bot_say(event_string)
+                i = i + 1

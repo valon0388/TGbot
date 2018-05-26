@@ -143,6 +143,9 @@ class Logger:
             self.write_log("MOVE: {}".format(logtext))
             return
 
+    def error(self, logtext):
+        log(ERROR, logtext)
+
     # ###################################
     #  quit
     #

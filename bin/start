@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+BOT=$(grep bot_common bot.conf | awk '{print $3}')
+
+screen -d -m -S $BOT bash -c "echo $ENV 2>&1>&${BOT}log; ./main.py 2>&1>&${BOT}log"
+
+exit 0

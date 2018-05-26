@@ -26,6 +26,7 @@ from MessageQueue import MessageQueue
 import json
 import re
 import random
+from datetime import datetime, timedelta, timezone
 
 
 # ###################################
@@ -42,6 +43,7 @@ class InputProcessor:
     config = Config()
     CAL = BotCalendar()
     MQ = MessageQueue()
+    ZONE = -5
 
     # ###################################
     #  Log
@@ -125,32 +127,66 @@ class InputProcessor:
         else:
             return False
 
-    # ###################################
-    #  process_triggers
-    #
-    #  Checks the provided text agains the
-    #  list of triggers that have been
-    #  provided in the config and triggers
-    #  a response.
-    # ###################################
+    def event_request_check(self, text):
+        self.log(DEBUG, "func -> event_request_check")
+        if re.compile(self.config.telegram["BOTNAME"]).match(text) is not None and re.compile(self.config.RESPONSES['events'][0]).search(text) is not None:
+            self.log(DEBUG, "EVENTLIST AND BOTNAME MATCH: {}".format(text))
+            self.CAL.check()
+            return True
+        return False
+
+
+    def get_timeout(self, key):
+        self.log(DEBUG, "func -> get_timeout")
+        if not key in self.config.TIMEOUT:
+            timeout = 0
+        else:
+            timeout = self.config.TIMEOUT[key]
+        return timeout
+
+    def check_timeout(self, timeout):
+        self.log(DEBUG, "func -> check_timeout")
+        now = datetime.today().replace(microsecond=0,tzinfo=timezone(timedelta(hours=self    .ZONE)))
+
+        if timeout is 0 or timeout <= now:
+            self.log(DEBUG, "TIMEOUT NOT IN EFFECT!!!")
+            return True
+        self.log(DEBUG, "TIMEOUT STILL IN EFFECT...")
+        return False
+
+    def set_timeout(self, timeout, key):
+        self.log(DEBUG, "func -> set_timeout")
+        now = datetime.today().replace(microsecond=0,tzinfo=timezone(timedelta(hours=self.ZONE)))
+        new_timeout = now + timedelta(seconds=+int(self.config.telegram["BOTLIMIT"]))
+        self.config.TIMEOUT[key] = new_timeout
+        self.log(DEBUG, "Set Done: {}".format(self.config.TIMEOUT[key]))
+
     def process_triggers(self, text):
         self.log(DEBUG, "func --> process_triggers")
-        for key, value in self.config.triggers["TRIGGERS"].items():
-            try:
-                value = value.format(self.config.telegram["BOTNAME"])
-            except IndexError:
-                self.log(ERROR, "No need to fill in the botname. This trigger doesn't take a name.")
+        
 
-            re_value = re.compile(value)
-            if re_value.search(text) is not None:
-                self.log(DEBUG, "Match for [{}] in text [{}]".format(value, text))
-                if re.compile(self.config.RESPONSES['events'][0]).search(text) is not None:
-                  self.CAL.check()
-                else:
-                  self.TGI.bot_say(random.choice(self.config.RESPONSES[key]))
-                break
-            else:
-                self.log(DEBUG, "No Match for [{}] in text [{}]".format(value, text))
+        if not self.event_request_check(text):
+            for key, value in self.config.triggers["TRIGGERS"].items():
+                timeout = self.get_timeout(key)
+                try:
+                    value = value.format(self.config.telegram["BOTNAME"])
+                    self.log(DEBUG, "FILLED IN THE BOTNAME. TRigger is now [{}]".format(value))
+                except IndexError:
+                    self.log(DEBUG, "No need to fill in the botname. This trigger [{}] doesn't take a name.".format(value)) 
+        
+
+                if self.check_timeout(timeout):
+                    re_value = re.compile(value)
+                    if re_value.search(text) is not None:
+                        self.log(DEBUG, "SETTING THE TIMEOUT")
+                        self.set_timeout(timeout, key)
+                        #self.TGI.bot_say(random.choice(self.config.RESPONSES[key]))
+                        #self.TGI.bot_say(json.dumps(keyboard))
+                        self.TGI.testKeyboard()
+                        break;
+                    else:
+                        self.log(DEBUG, "No Match for [{}] in text [{}]".format(value, text))
+
 
     # ###################################
     #  process_now
@@ -174,11 +210,6 @@ class InputProcessor:
         elif 'new_chat_member' in message[mType] and message[mType]["new_chat_member"]['is_bot'] is False:
             response = self.TGI.welcome_say(message[mType]['new_chat_member']["first_name"])
         elif 'text' in message[mType]:
-            if re.compile(self.config.telegram["BOTNAME"]).match(text) is not None:
-                self.log(DEBUG, "BOTNAME match: {}".format(text))
-                if re.compile('eventlist').search(text) is not None:
-                    self.log(DEBUG, "eventlist match")
-                    response = "eventlist"
             self.process_triggers(text)
 
 

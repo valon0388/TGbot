@@ -119,7 +119,7 @@ __init__()
 _thread.start_new_thread(push_listener, (("push_listener", 0)))
 _thread.start_new_thread(calendar_checker, (("calendar_checker", 0)))
 
-TGI.bot_say("FEAR THE EVENTUAL EVISCERATOR!!!")
+MQ.addBotMessage(config.group_info["STARTUP"])
 CAL.build_eventQueue()
 
 log(INFO, "AFTER PUSH LISTENER")

@@ -19,6 +19,9 @@
 from logger import *  # Imports Logger class as well as predefined Logging levels(INFO, DEBUG, ERROR)
 from config import Config
 
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler
+
 import json
 import urllib
 import requests
@@ -61,6 +64,31 @@ def singleton(cls):
 class TGInterface:
     logger = Logger()
     config = Config()
+    #updater = Updater(self.config.telegram["TOKEN"], use_context=True)
+
+    def testKeyboard(self):
+        keyboard = [[InlineKeyboardButton("Option 1", callback_data='1'),
+                 InlineKeyboardButton("Option 2", callback_data='2')],
+                [InlineKeyboardButton("Option 3", callback_data='3')]]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        #update.message.reply_text('Please choose:', reply_markup=reply_markup)
+        #self.bot_say(reply_markup)
+        #self.bot_say(json.dumps(reply_markup))
+        #self.bot_say("Options", reply_markup=reply_markup)
+        self.bot_say("Options", reply_markup=json.dumps(reply_markup))
+
+    def button(self, update, context):
+        query = update.callback_query
+        query.edit_message_text(text="Selected option: {}".format(query.data))
+
+
+    def help(self, update, context):
+        update.message.reply_text("Use /start to test this bot.")
+
+    def error(self, update, context):
+        self.log(ERROR, "[{}] {}".format(context.error, update))
 
     # ###################################
     #  Log
@@ -98,13 +126,16 @@ class TGInterface:
     #  containing the string contained in
     #  the text parameter.
     # ###################################
-    def bot_say(self, text):
+    def bot_say(self, text, reply_markup=None):
         self.log(DEBUG, "func --> bot_say")
         live = eval(self.config.server["LIVE"])
         say = eval(self.config.telegram["BOTSAY"])
         text = urllib.parse.quote(text)
         url = self.config.telegram["URL"].format(self.config.telegram["TOKEN"]) + "sendMessage?text={}&chat_id={}".format(text, self.config.telegram["CHAT_RESTRICTION"])
+        if reply_markup != None:
+            url = url + "&inline_keyboard={}".format(reply_markup)
         if live and say:
+            self.log(DEBUG, "URL: {}".format(url))
             response = json.loads(self.get_url(url))
             self.log(DEBUG, "Response from server: {}".format(response))
             return {"message": response["result"]}

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+BOTNAME=$1
+
+gzo()
+{
+    FILE=$1;
+    BOTNAME=$2;
+    NEW="${FILE}s/${BOTNAME}log.$(date +'%y-%m-%d--%H:%M:%S').gz";
+    touch $NEW
+    ls -lah $NEW
+    gzip -9 -vc $FILE > $NEW && echo '' > $FILE;
+}
+
+gzo /home/${BOTNAME}/${BOTNAME}log $BOTNAME;
+
+# Usage:
+#   ./compressLog "tgbot"

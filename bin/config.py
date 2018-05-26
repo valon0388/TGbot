@@ -21,6 +21,7 @@ from logger import *  # Imports Logger class as well as predefined Logging level
 
 import configparser as cp
 from os.path import isfile
+from os.path import realpath
 import re
 
 
@@ -71,8 +72,8 @@ class Config:
     # ###################################
     #  __init__
     # ###################################
-    def __init__(self, config_file='bot.conf'):
-        self.config_file = config_file
+    def __init__(self, config_file='./bot.conf'):
+        self.config_file = realpath(config_file)
         self.get_config()
 
     # ###################################
@@ -94,6 +95,7 @@ class Config:
     # ###################################
     def get_config(self):
         self.log(DEBUG, "func --> get_config")
+        print(self.config_file)
         if isfile(self.config_file):
             self.config.read(self.config_file)
 
@@ -108,6 +110,7 @@ class Config:
 
             section = 'telegram'
             self.telegram["BOTSAY"] = self.config[section]['botsay']
+            self.telegram["BOTLIMIT"] = self.config[section]['botlimit']
             self.telegram["BOTWELCOME"] = self.config[section]['botwelcome']
             self.telegram["CHAT_RESTRICTION"] = self.config[section]['chat_id']
             self.telegram["TOKEN"] = self.config[section]['token']
@@ -116,7 +119,8 @@ class Config:
             self.telegram["BOTNAME"] = self.config[section]['botname']
 
             section = 'group_info'
-            self.group_info["GROUPNAME"] = self.config[section]['name']
+            self.group_info["GROUPNAME"] = self.config[section]['name']  
+            self.group_info["STARTUP"] = self.config[section]['startup']
             self.group_info["RULES"] = self.config[section]['rules_link']
             self.group_info["UPCOMING"] = self.config[section]['upcoming']
 
@@ -129,6 +133,8 @@ class Config:
             section = 'events'
             self.events["LIST"] = self.config[section]['list']
             self.events["REMINDERS"] = self.config[section]['reminders']
+
+            self.TIMEOUT = {"def_val": 101}
 
             section = 'triggers'
             regex = re.compile('^trigger_')

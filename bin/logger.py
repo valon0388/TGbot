@@ -67,7 +67,7 @@ def singleton(cls):
 # ###################################
 @singleton
 class Logger:
-    p = pprint.PrettyPrinter(indent=2, width=120)
+    p = pprint.PrettyPrinter(indent=2, width=80)
     pp = p.pprint
 
     # ###################################

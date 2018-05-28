@@ -67,17 +67,26 @@ class TGInterface:
     #updater = Updater(self.config.telegram["TOKEN"], use_context=True)
 
     def testKeyboard(self):
-        keyboard = [[InlineKeyboardButton("Option 1", callback_data='1'),
-                 InlineKeyboardButton("Option 2", callback_data='2')],
-                [InlineKeyboardButton("Option 3", callback_data='3')]]
+        self.log(INFO, "func --> testKeyboard")
+        keyboard = [[
+            InlineKeyboardButton("Option 1", callback_data='1'),
+            InlineKeyboardButton("Option 2", callback_data='2'),
+            InlineKeyboardButton("Option 3", callback_data='3')
+        ]]
+        self.log(INFO, "func --> testKeyboard-2")
 
         reply_markup = InlineKeyboardMarkup(keyboard)
+        self.log(INFO, "func --> testKeyboard-3")
 
         #update.message.reply_text('Please choose:', reply_markup=reply_markup)
         #self.bot_say(reply_markup)
         #self.bot_say(json.dumps(reply_markup))
         #self.bot_say("Options", reply_markup=reply_markup)
-        self.bot_say("Options", reply_markup=json.dumps(reply_markup))
+        reply_markup = json.dumps(reply_markup.to_dict())
+        self.log(INFO, "func --> testKeyboard-4")
+        self.log(DEBUG, "reply_markup: {}".format(reply_markup))
+        self.bot_say("Options", reply_markup=reply_markup)
+        self.log(INFO, "func --> testKeyboard-FINAL")
 
     def button(self, update, context):
         query = update.callback_query
@@ -131,12 +140,29 @@ class TGInterface:
         live = eval(self.config.server["LIVE"])
         say = eval(self.config.telegram["BOTSAY"])
         text = urllib.parse.quote(text)
-        url = self.config.telegram["URL"].format(self.config.telegram["TOKEN"]) + "sendMessage?text={}&chat_id={}".format(text, self.config.telegram["CHAT_RESTRICTION"])
+
+
+
+        self.log(DEBUG, "func --> bot_say1")
         if reply_markup != None:
-            url = url + "&inline_keyboard={}".format(reply_markup)
+            data = {'reply_markup': reply_markup}
+        self.log(DEBUG, "func --> bot_say2")
         if live and say:
-            self.log(DEBUG, "URL: {}".format(url))
-            response = json.loads(self.get_url(url))
+            if reply_markup != None:
+              url = self.config.telegram["URL"].format(self.config.telegram["TOKEN"]) + "sendMessage?text={}&chat_id={}".format(text, self.config.telegram["CHAT_RESTRICTION"])
+              
+              data['text'] = text
+              data['chat_id'] = self.config.telegram["CHAT_RESTRICTION"]
+
+              self.log(DEBUG, "func --> bot_say3-post")
+              self.log(DEBUG, "URL: {}".format(url))
+              result = self.post_url(url, data)
+            else:
+              url = self.config.telegram["URL"].format(self.config.telegram["TOKEN"]) + "sendMessage?text={}&chat_id={}".format(text, self.config.telegram["CHAT_RESTRICTION"])
+              self.log(DEBUG, "func --> bot_say4-get")
+              self.log(DEBUG, "URL: {}".format(url))
+              result = self.get_url(url)
+            response = json.loads(result)
             self.log(DEBUG, "Response from server: {}".format(response))
             return {"message": response["result"]}
         else:
@@ -152,9 +178,25 @@ class TGInterface:
     #  url is passed to the function.
     # ###################################
     def get_url(self, url):
-        self.log(DEBUG, "func --> get_config")
-        self.log(DEBUG, "get_url: {}".format(url))
+        self.log(DEBUG, "func --> get_url")
+        self.log(DEBUG, "URL: {}".format(url))
         response = requests.get(url)
+        content = response.content.decode("utf8")
+        return content
+
+    def post_url(self, url, data=None):
+        self.log(DEBUG, "func --> post_url")
+        self.log(DEBUG, "POOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOST")
+        self.log(DEBUG, "URL: {}".format(url))
+        self.logger.pp(url)
+        self.log(DEBUG, "DATA: {}".format(data))
+        self.logger.pp(data)
+        
+        if data != None:
+          response = requests.post(url, data)
+        # else:
+        #   response = requests.post(url)
+        self.log(DEBUG, response)
         content = response.content.decode("utf8")
         return content
 

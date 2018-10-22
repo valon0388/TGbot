@@ -20,6 +20,7 @@
 from logger import *
 from TGInterface import TGInterface
 from config import Config
+from MessageQueue import MessageQueue
 
 # import httplib2
 # import os
@@ -67,12 +68,13 @@ def singleton(cls):
 # ###################################
 @singleton
 class BotCalendar:
-    logger = Logger()
-    config = Config()
-    eventQueue = queue.Queue()
-    TGI = TGInterface()
+    #logger = Logger()
+    #config = Config()
+    #eventQueue = queue.Queue()
+    #MQ = MessageQueue()
+    #TGI = TGInterface()
 
-    URL = 'https://www.googleapis.com/calendar/v3/calendars/{}/events?key={}&timeMin={}&maxResults=3&showDeleted=false&orderBy=startTime&singleEvents=true'
+    #URL = 'https://www.googleapis.com/calendar/v3/calendars/{}/events?key={}&timeMin={}&maxResults=3&showDeleted=false&orderBy=startTime&singleEvents=true'
 
     # ###################################
     #  __init__
@@ -81,6 +83,15 @@ class BotCalendar:
     #  to initialize the class.
     # ###################################s
     def __init__(self):
+        self.logger = Logger()
+        self.config = Config()
+        self.eventQueue = queue.Queue()
+        self.MQ = MessageQueue()
+        self.TGI = TGInterface()
+
+        self.URL = 'https://www.googleapis.com/calendar/v3/calendars/{}/events?key={}&timeMin={}&maxResults=3&showDeleted=false&orderBy=startTime&singleEvents=true'
+
+
         self.log(DEBUG, " func --> __init__")
         self.API_KEY = self.config.calendar['API_KEY']
         self.CALID = self.config.calendar['CALID']
@@ -151,7 +162,8 @@ class BotCalendar:
         self.log(DEBUG, " func --> check")
         event_list = self.get_eventlist()
         if event_list is not '' and eval(self.config.events["LIST"]):
-            response = self.TGI.bot_say(self.get_eventlist())
+            #response = self.TGI.bot_say(self.get_eventlist())
+            response = self.MQ.addBotMessage(self.get_eventlist())
             return response
         else:
             self.log(DEBUG, "EVENT STRING: {}".format(event_list))
@@ -273,5 +285,6 @@ class BotCalendar:
                                 event_string = event_string + "\nDescription: {}".format(event['description'])
                             break
                     if event_string is not '' and eval(self.config.events["REMINDERS"]):
-                        self.TGI.bot_say(event_string)
+                        #self.TGI.bot_say(event_string)
+                        self.MQ.addBotMessage(event_string)
                 i = i + 1

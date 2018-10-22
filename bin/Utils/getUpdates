@@ -3,7 +3,7 @@
 APIKEY=$(grep ^token ~/bot.conf | awk '{print $3}')
 
 echo;
-JSON=$(curl https://api.telegram.org/bot$APIKEY/getWebhookInfo 2>/dev/null)
+JSON=$(curl https://api.telegram.org/bot$APIKEY/getUpdates 2>/dev/null)
 echo "$JSON"
 echo
 echo

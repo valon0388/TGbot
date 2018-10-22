@@ -11,3 +11,6 @@ old
 old/*
 *botlog
 bin/__pycache__
+bin/Test Suite/__pycache__
+*.log
+*.errorlog

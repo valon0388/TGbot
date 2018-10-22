@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-IP=$3
-PORT=$4
-TOKEN=$5
-TEXT=$6
+IP=$(grep ^ip ~/bot.conf | awk '{print $3}')
+PORT=$(grep ^port ~/bot.conf | awk '{print $3}')
+TOKEN=$(grep ^token ~/bot.conf | awk '{print $3}')
+TEXT=$3
 DATE=$(date +%s)
 IPPORT="https://$IP:$PORT/$TOKEN"
 
@@ -87,7 +87,7 @@ callback()
 }
 
 # USAGE
-# ./botquery.sh MESSAGEID FUNCTION IP PORT TOKEN
+# ./botquery.sh MESSAGEID FUNCTION MESSAGETEXT
 
 MID=$1
 

@@ -59,7 +59,7 @@ def singleton(cls):
 # ###################################
 @singleton
 class Config:
-    logger = Logger()
+    #logger = Logger()
     config = cp.ConfigParser()
     server = {}
     telegram = {}
@@ -84,7 +84,8 @@ class Config:
     #  caller.
     # ###################################
     def log(self, level, statement):
-        self.logger.log(level, "config -- {}".format(statement))
+        #self.logger = Logger()
+        print(level, "config -- {}".format(statement))
 
     # ###################################
     #  GET_CONFIG
@@ -94,7 +95,6 @@ class Config:
     #  generate and save a default config and use that.
     # ###################################
     def get_config(self):
-        self.log(DEBUG, "func --> get_config")
         print(self.config_file)
         if isfile(self.config_file):
             self.config.read(self.config_file)
@@ -107,6 +107,7 @@ class Config:
             self.server["KEY"] = self.config[section]['key']
             self.server["CERT"] = self.config[section]['cert']
             self.server["DB"] = self.config[section]['db']
+            self.server["LOGNAME"] = self.config[section]['logname']
 
             section = 'telegram'
             self.telegram["BOTSAY"] = self.config[section]['botsay']

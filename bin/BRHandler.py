@@ -115,4 +115,4 @@ class botRequestHandler(BaseHTTPRequestHandler):
                     b"<html><body><h1>403 FORBIDDEN</h1></body></html>"
                     )
         except Exception as e:
-            self.log(ERROR, "Exception: {}".format(e))
+            self.log(ERROR, "!!!!!!!!!!!!!!!!! Exception!!!!!!!!!!!!!!!!!!!: {}".format(e))

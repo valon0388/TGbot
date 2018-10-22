@@ -42,9 +42,6 @@ import time
 def singleton(cls):
     instances = {}
 
-    def __init__():
-        return
-
     def getinstance():
         if cls not in instances:
             instances[cls] = cls()
@@ -62,9 +59,10 @@ def singleton(cls):
 # ###################################
 @singleton
 class TGInterface:
-    logger = Logger()
-    config = Config()
-    #updater = Updater(self.config.telegram["TOKEN"], use_context=True)
+    
+    def __init__(self):
+        self.logger = Logger()
+        self.config = Config()
 
     def testKeyboard(self):
         self.log(INFO, "func --> testKeyboard")
@@ -78,10 +76,6 @@ class TGInterface:
         reply_markup = InlineKeyboardMarkup(keyboard)
         self.log(INFO, "func --> testKeyboard-3")
 
-        #update.message.reply_text('Please choose:', reply_markup=reply_markup)
-        #self.bot_say(reply_markup)
-        #self.bot_say(json.dumps(reply_markup))
-        #self.bot_say("Options", reply_markup=reply_markup)
         reply_markup = json.dumps(reply_markup.to_dict())
         self.log(INFO, "func --> testKeyboard-4")
         self.log(DEBUG, "reply_markup: {}".format(reply_markup))
@@ -140,8 +134,6 @@ class TGInterface:
         live = eval(self.config.server["LIVE"])
         say = eval(self.config.telegram["BOTSAY"])
         text = urllib.parse.quote(text)
-
-
 
         self.log(DEBUG, "func --> bot_say1")
         if reply_markup != None:

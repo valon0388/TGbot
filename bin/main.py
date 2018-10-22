@@ -39,7 +39,7 @@ CAL = ''
 TGI = ''
 
 
-logger = Logger()
+logger = ''
 httpd = ''
 
 
@@ -63,13 +63,16 @@ def log(level, statement):
 #  the socket in an SSL context.
 # ###################################
 def __init__():
-    log(DEBUG, "func --> __init__")
     global config
     global DB
     global MQ
     global CAL
     global TGI
+    global logger
     config = Config()
+    logger = Logger(auto=True, logname=config.server['LOGNAME'])
+    logger.setup(config.server['LOGNAME'])
+    log(DEBUG, "func --> __init__")
     TGI = TGInterface()
     CAL = BotCalendar()
     MQ = MessageQueue()

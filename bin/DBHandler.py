@@ -34,8 +34,8 @@ import os
 #  for the messages.
 # ###################################
 class DBHandler:
-    logger = Logger()
-    config = Config()
+    #logger = Logger()
+    #config = Config()
 
     # ###################################
     #  __init__
@@ -44,6 +44,8 @@ class DBHandler:
     #  database.
     # ###################################
     def __init__(self):
+        self.logger = Logger()
+        self.config = Config()
         self.createDB()
 
     # ###################################

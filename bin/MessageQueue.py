@@ -63,11 +63,13 @@ def singleton(cls):
 # ###################################
 @singleton
 class MessageQueue:
-    logger = Logger()
-    DB = DBHandler()
-    config = Config()
-    TGI = TGInterface()
-    messageQueue = Queue()
+        
+    def __init__(self):
+        self.logger = Logger()
+        self.DB = DBHandler()
+        self.config = Config()
+        self.TGI = TGInterface()
+        self.messageQueue = Queue()
 
     # ###################################
     #  Log
@@ -120,6 +122,27 @@ class MessageQueue:
         else:
             mType = "other"
         return mType
+
+    # ###################################
+    #  addMessage
+    #
+    #  Adds the message specified in
+    #  message_json to the DB and to the
+    #  queue.
+    # ###################################
+    def addMessage(self, message_json):
+        self.log(DEBUG, "func --> addMessage")
+        self.DB.addToDB(self.getMType(message_json), message_json)
+        self.addToQueue(message_json)
+
+    # ###################################
+    #  addToQueue
+    #
+    #  Adds a message to the queue.
+    # ###################################
+    def addToQueue(self, message_json):
+        self.log(DEBUG, "func --> addToQueue")
+        self.messageQueue.put(json.dumps(message_json))
 
     # ###################################
     #  addBotMessage

@@ -20,17 +20,21 @@
 import pprint
 import datetime
 import os
+import logging
+
 
 # Log levels: if True, print
 LOGINFO = True
 LOGDEBUG = True
+LOGWARN = True
 LOGERROR = True
 
 # Level definitions
 INFO = 0
 DEBUG = 1
+WARN = 3
 ERROR = 2
-MOVE = 3
+CRIT = 4
 
 
 # ###################################
@@ -47,12 +51,13 @@ MOVE = 3
 def singleton(cls):
     instances = {}
 
-    def __init__(auto=False, logfile=False):
-        return
+#    def __init__(auto=True, logname=False):
+#        return
 
-    def getinstance(auto=False, logfile=False):
+    def getinstance(auto=True, logname=False):
+        print("GI: {} {}".format(auto, logname))
         if cls not in instances:
-            instances[cls] = cls(auto, logfile)
+            instances[cls] = cls(auto=auto, logname=logname)
         return instances[cls]
     return getinstance
 
@@ -70,6 +75,9 @@ class Logger:
     p = pprint.PrettyPrinter(indent=2, width=80)
     pp = p.pprint
 
+    lggr = logging.getLogger('TGBOT')
+    lggr.setLevel(logging.DEBUG)
+
     # ###################################
     #  __init__
     #
@@ -85,22 +93,41 @@ class Logger:
     #  the file are automatically created
     #  if they do not exist.
     # ###################################
-    def __init__(self, auto=False, logfile=False):
+    def __init__(self, auto=True, logname=False):
+        self.pp("logger init")
+        self.pp(logname)
         self.auto = auto
-        if logfile is not False:
-            self.logfile = os.path.expanduser(logfile)
+
+
+    def setup(self, logname):
+        logfile_debug = self.initLog(logname, INFO)
+        logfile_error = self.initLog(logname, ERROR)
+        formatter = logging.Formatter('%(message)s')
+        if logfile_debug is not None and logfile_error is not None:
+            logfile_debug.setFormatter(formatter)
+            logfile_error.setFormatter(formatter)
+            self.lggr.addHandler(logfile_debug)
+            self.lggr.addHandler(logfile_error)      
+        self.pp("END logger init")
+
+    def initLog(self, logname, log):
+        if logname is not False:
+            if log == ERROR:
+                self.logfilename = os.path.expanduser("~/{}.errorlog".format(logname))
+            else:
+                self.logfilename = os.path.expanduser("~/{}.log".format(logname))
 
             try:
-                self.file = open(logfile, 'a+')
-            except 'FileNotFoundError':
+                logfile = logging.FileHandler(self.logfilename)
+            except FileNotFoundError:
                 directory = os.path.split(logfile)[0]
                 if not os.path.exists(directory):
                     os.makedirs(directory)
-                self.file = open(logfile, 'a+')
+                logfile = logging.FileHandler(logfile)
         else:
-            self.logfile = None
-
+            logfile = 1
         self.log(DEBUG, "Initialized Logger")
+        return logfile
 
     # ###################################
     #  write_log
@@ -114,10 +141,7 @@ class Logger:
     # ###################################
     def write_log(self, statement):
         dt = datetime.datetime.today()
-        if self.auto is True:
-            self.file.write("[{}] {}\n".format(dt, statement))
-        else:
-            self.pp("[{}] {}".format(dt, statement))
+        return "[{}] {}\n".format(dt, statement)
 
     # ###################################
     #  Log
@@ -128,23 +152,19 @@ class Logger:
     def log(self, level, logtext):
         if LOGINFO and level == INFO:
             # self.pp("INFO: {}".format(logtext))
-            self.write_log("INFO: {}".format(logtext))
+            self.lggr.info(self.write_log("INFO: {}".format(logtext)))
             return
         if LOGDEBUG and level == DEBUG:
             # self.pp("DEBUG: {}".format(logtext))
-            self.write_log("DEBUG: {}".format(logtext))
+            self.lggr.debug(self.write_log("DEBUG: {}".format(logtext)))
             return
         if LOGERROR and level == ERROR:
             # self.pp("ERROR: {}".format(logtext))
-            self.write_log("ERROR: {}".format(logtext))
-            return
-        if level == MOVE:
-            # self.pp("MOVE: {}".format(logtext))
-            self.write_log("MOVE: {}".format(logtext))
+            self.lggr.error(self.write_log("ERROR: {}".format(logtext)))
             return
 
     def error(self, logtext):
-        log(ERROR, logtext)
+        self.log(ERROR, logtext)
 
     # ###################################
     #  quit
@@ -153,6 +173,6 @@ class Logger:
     #  the log file if one is open.
     # ###################################
     def quit(self):
-        self.write_log("Closing program on user exit")
+        self.log(INFO,self.write_log("Closing program on user exit"))
         if self.auto is True:
             self.file.close()

@@ -22,6 +22,7 @@ from TGInterface import TGInterface
 from config import Config
 from botcalendar import BotCalendar
 from MessageQueue import MessageQueue
+from Poller import Poller
 
 import json
 import re
@@ -38,12 +39,15 @@ from datetime import datetime, timedelta, timezone
 #  taken by the bot.
 # ###################################
 class InputProcessor:
-    logger = Logger()
-    TGI = TGInterface()
-    config = Config()
-    CAL = BotCalendar()
-    MQ = MessageQueue()
-    ZONE = -5
+        
+    def __init__(self):    
+        self.logger = Logger()
+        self.TGI = TGInterface()
+        self.config = Config()
+        self.Poller = Poller()
+        self.CAL = BotCalendar()
+        self.MQ = MessageQueue()
+        self.ZONE = -5
 
     # ###################################
     #  Log
@@ -67,7 +71,7 @@ class InputProcessor:
         self.log(DEBUG, "func --> new_member_check")
         mType = self.getMType(message_json)
         if 'new_chat_member' in message_json[mType]:
-            send_welcome(message_json[mType]["new_chat_member"]["first_name"])
+            self.TGI.welcome_say(message_json[mType]["new_chat_member"]["first_name"])
 
     # ###################################
     #  getMType
@@ -135,6 +139,15 @@ class InputProcessor:
             return True
         return False
 
+    def poll_request_check(self, text):
+        self.log(DEBUG, "func -> poll_request_check")
+        if re.compile(self.config.telegram["BOTNAME"]).match(text) is not None and re.compile(self.config.RESPONSES['newpoll'][0]).search(text) is not None:
+            self.log(DEBUG, "NEWPOLL AND BOTNAME MATCH: {}".format(text))
+            self.Poller.newPoll(text)
+            self.log(DEBUG, "Poller created with {}".format(text))
+            return True
+        return False
+
 
     def get_timeout(self, key):
         self.log(DEBUG, "func -> get_timeout")
@@ -165,7 +178,7 @@ class InputProcessor:
         self.log(DEBUG, "func --> process_triggers")
         
 
-        if not self.event_request_check(text):
+        if not self.event_request_check(text) and not self.poll_request_check(text):
             for key, value in self.config.triggers["TRIGGERS"].items():
                 timeout = self.get_timeout(key)
                 try:
@@ -180,9 +193,8 @@ class InputProcessor:
                     if re_value.search(text) is not None:
                         self.log(DEBUG, "SETTING THE TIMEOUT")
                         self.set_timeout(timeout, key)
-                        #self.TGI.bot_say(random.choice(self.config.RESPONSES[key]))
-                        #self.TGI.bot_say(json.dumps(keyboard))
-                        self.TGI.testKeyboard()
+                        self.TGI.bot_say(random.choice(self.config.RESPONSES[key]))
+                        #self.TGI.testKeyboard()
                         break;
                     else:
                         self.log(DEBUG, "No Match for [{}] in text [{}]".format(value, text))
@@ -206,7 +218,8 @@ class InputProcessor:
         if mType is not 'other' and 'text' in message[mType]:
             text = message[mType]['text']
         if "botsay" in message:
-            response = self.TGI.bot_say(message["botsay"])
+            #response = self.TGI.bot_say(message["botsay"])
+            response = self.MQ.addBotMessage(message["botsay"])
         elif 'new_chat_member' in message[mType] and message[mType]["new_chat_member"]['is_bot'] is False:
             response = self.TGI.welcome_say(message[mType]['new_chat_member']["first_name"])
         elif 'text' in message[mType]:
